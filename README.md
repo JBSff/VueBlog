@@ -1,17 +1,16 @@
-# v2.0 更新内容
+# v1.3 更新内容
 
-相对于 v1.1 版本，本项目包含以下更新：
+相对于 v1.2 版本，本项目包含以下更新：
 
-## ✨ 新增特性
+## 1. GitHub Pages 部署支持
+- `vite.config.js` 根据构建模式动态设置 `base`，生产环境会输出 `/VueBlog/` 路径，匹配 GitHub Pages 项目站点。
+- `package.json` 新增 `deploy` 脚本：
 
-- **SEO 与体验优化**: 
-  - 路由配置中新增 `meta.title` 字段。
-  - 增加全局路由后置守卫 (`router.afterEach`)，实现页面切换时自动更新浏览器标题 (`document.title`)。
-- **界面更新**: 
-  - 更新了页脚版权年份至 2025 年。
-  - 添加了忘记密码选项。
-  - 修改ui界面，适配不同分辨率。
+```bash
+npm run deploy
+```
 
-## 🛠️ 代码变更ter/index.js**: 添加路由元信息及标题控制逻辑。
-- **src/App.vue**: 更新版权信息。
+该脚本会执行 `vite build`，并通过 `gh-pages` 将 `dist` 目录推送到 `gh-pages` 分支。
 
+## 2. 尝试对用户权限持久化修复
+- 依旧存在问题，为管理账户单独添加了后台入口来暂时解决问题

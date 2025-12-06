@@ -149,8 +149,8 @@ export default {
         if (valid) {
           loading.value = true
           try {
-            // 使用新的登录API
-            const success = await login(loginForm.value.username, loginForm.value.password)
+            // 直接使用userStore的login方法
+            const success = await userStore.login(loginForm.value.username, loginForm.value.password)
             
             if (success) {
               ElMessage.success('登录成功')
