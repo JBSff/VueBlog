@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的博客 - 服务条款与隐私协议</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+
+        a {
+            color: #409eff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #66b1ff;
+        }
+
+        /* 应用容器 */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航 */
+        header {
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            width: 950px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            box-sizing: border-box;
+        }
+
+        .site-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .site-title a {
+            color: #303133;
+        }
+
+        .site-title a:hover {
+            color: #409eff;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #606266;
+            font-size: 16px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #409eff;
+            background: #ecf5ff;
+        }
+
+        /* 主内容区域 */
+        main {
+            flex: 1;
+            width: 950px;
+            margin: 20px auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* 页脚 */
+        footer {
+            padding: 30px 0;
+            text-align: center;
+            color: #909399;
+            margin-top: auto;
+            width: 950px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        /* 服务条款内容 */
+        .content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .content h1 {
+            color: #333;
+            margin: 0 0 20px 0;
+        }
+
+        .content p {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <header>
+            <div class="header-content">
+                <h1 class="site-title"><a href="/">我的博客</a></h1>
+                <nav>
+                    <a href="/" class="nav-link">首页</a>
+                    <a href="/category/1" class="nav-link">分类</a>
+                    <a href="/login" class="nav-link">登录</a>
+                </nav>
+            </div>
+        </header>
+        
+        <!-- 主内容区域 -->
+        <main>
+            <div class="content">
+                <h1>服务条款与隐私协议</h1>
+                <p>期末项目测试，不同意就无法登录~</p>
+            </div>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer>
+            <p>© 2025 我的博客. 保留所有权利.</p>
+        </footer>
+    </div>
+</body>
+</html>
