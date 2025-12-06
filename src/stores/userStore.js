@@ -7,26 +7,58 @@ const USER_STORAGE_KEY = 'blog_user';
 const TOKEN_STORAGE_KEY = 'blog_token';
 const REGISTERED_USERS_KEY = 'registered_users';
 
+// 强制admin账号保持管理员角色
+const normalizeAdminUser = (user) => {
+  if (!user) {
+    return user;
+  }
+  const normalizedUser = { ...user };
+  if (normalizedUser.username === 'admin') {
+    normalizedUser.role = 'admin';
+  }
+  return normalizedUser;
+};
+
 export const useUserStore = defineStore('user', {
-  state: () => ({
-    // 从localStorage获取用户信息，无数据时使用null
-    currentUser: StorageUtil.getData(USER_STORAGE_KEY, null),
-    // 从localStorage获取token，无数据时使用null
-    token: StorageUtil.getData(TOKEN_STORAGE_KEY, null),
-    // 获取注册的用户列表，如果没有则使用空数组
-    registeredUsers: StorageUtil.getData(REGISTERED_USERS_KEY, []),
-    loading: false,
-    error: null
-  }),
+  state: () => {
+    // 从localStorage获取用户信息
+    let currentUser = StorageUtil.getData(USER_STORAGE_KEY, null);
+    
+    // 保存原始用户信息（处理null情况）
+    const originalUser = currentUser ? { ...currentUser } : null;
+    
+    // 确保admin用户的role始终是admin
+    currentUser = normalizeAdminUser(currentUser);
+    
+    // 如果用户信息有变化（特别是admin角色被添加），则重新保存到localStorage
+    if (currentUser && JSON.stringify(currentUser) !== JSON.stringify(originalUser)) {
+      StorageUtil.saveData(USER_STORAGE_KEY, currentUser);
+    }
+    
+    return {
+      // 从localStorage获取用户信息，无数据时使用null
+      currentUser: currentUser,
+      // 从localStorage获取token，无数据时使用null
+      token: StorageUtil.getData(TOKEN_STORAGE_KEY, null),
+      // 获取注册的用户列表，如果没有则使用空数组
+      registeredUsers: StorageUtil.getData(REGISTERED_USERS_KEY, []),
+      loading: false,
+      error: null
+    };
+  },
 
   getters: {
     isAuthenticated: (state) => !!state.token && !!state.currentUser,
-    isAdmin: (state) => state.currentUser?.role === 'admin'
+    isAdmin: (state) => state.currentUser?.role === 'admin' || state.currentUser?.username === 'admin'
   },
 
   actions: {
     // 保存用户信息到localStorage
     saveUserToStorage() {
+      // 确保admin用户的role始终是admin
+      if (this.currentUser && this.currentUser.username === 'admin') {
+        this.currentUser.role = 'admin';
+      }
       StorageUtil.saveData(USER_STORAGE_KEY, this.currentUser);
     },
     
@@ -90,9 +122,13 @@ export const useUserStore = defineStore('user', {
         // 模拟API调用延迟
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // 查找用户（包括模拟用户和注册用户）
-        const user = mockUsers.find(u => u.username === username && u.password === password) ||
-                    this.registeredUsers.find(u => u.username === username && u.password === password);
+        // 首先检查是否是mock用户，特别是admin用户
+        let user = mockUsers.find(u => u.username === username && u.password === password);
+        
+        // 如果不是mock用户，再检查注册用户
+        if (!user) {
+          user = this.registeredUsers.find(u => u.username === username && u.password === password);
+        }
         
         if (!user) {
           throw new Error('用户名或密码错误');
@@ -101,8 +137,11 @@ export const useUserStore = defineStore('user', {
         // 生成模拟token
         const mockToken = `mock_token_${Date.now()}`;
         
+        // 创建用户对象的副本，并确保admin身份
+        const userToSave = normalizeAdminUser(user);
+        
         // 更新状态
-        this.currentUser = user;
+        this.currentUser = userToSave;
         this.token = mockToken;
         
         // 保存到localStorage

@@ -392,7 +392,12 @@ export default {
     
     // 确保userStore.currentUser是最新的
     if (!userStore.currentUser) {
-      userStore.currentUser = StorageUtil.getData('blog_user', null)
+      const storedUser = StorageUtil.getData('blog_user', null)
+      // 确保admin用户的role始终是admin
+      if (storedUser && storedUser.username === 'admin') {
+        storedUser.role = 'admin'
+      }
+      userStore.currentUser = storedUser
       userStore.token = StorageUtil.getData('blog_token', null)
     }
     

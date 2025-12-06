@@ -8,6 +8,9 @@
           <router-link to="/" class="nav-link">首页</router-link>
           <router-link to="/category/1" class="nav-link">分类</router-link>
           <template v-if="isAuthenticated">
+            <!-- 管理员链接 - 只有管理员能看到 -->
+            <router-link to="/admin" class="nav-link" v-if="isAdmin">管理后台</router-link>
+            <!-- 用户中心链接 - 所有登录用户都能看到 -->
             <router-link to="/user/profile" class="nav-link">{{ currentUser?.username || '用户' }}</router-link>
           </template>
           <template v-else>
@@ -55,10 +58,16 @@ export default {
       return userStore.currentUser
     })
     
+    // 是否为管理员
+    const isAdmin = computed(() => {
+      return userStore.isAdmin
+    })
+    
     return {
       isAdminRoute,
       isAuthenticated,
-      currentUser
+      currentUser,
+      isAdmin
     }
   }
 }
