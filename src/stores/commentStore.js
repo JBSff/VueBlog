@@ -1,17 +1,13 @@
 import { defineStore } from 'pinia';
 import { mockComments } from './mockData';
-import StorageUtil from '../utils/storage';
-
-// 存储键名
-const COMMENTS_STORAGE_KEY = 'blog_comments';
 
 export const useCommentStore = defineStore('comment', {
   state: () => ({
-    // 从localStorage获取评论数据，如果没有则使用mock数据
-    comments: StorageUtil.getData(COMMENTS_STORAGE_KEY, [...mockComments]),
+    comments: [...mockComments],
     loading: false,
     error: null
   }),
+  persist: true,
 
   getters: {
     // 根据文章ID获取已批准的评论
@@ -42,12 +38,7 @@ export const useCommentStore = defineStore('comment', {
         
         // 更新状态并保存到localStorage
         this.comments = sortedComments;
-        this.saveCommentsToStorage();
       }
-    },
-    // 保存评论数据到localStorage
-    saveCommentsToStorage() {
-      StorageUtil.saveData(COMMENTS_STORAGE_KEY, this.comments);
     },
 
     // 获取文章的评论
@@ -111,7 +102,6 @@ export const useCommentStore = defineStore('comment', {
         };
         
         this.comments.unshift(newComment);
-        this.saveCommentsToStorage(); // 保存到localStorage
         return newComment;
       } catch (error) {
         this.error = error.message;
@@ -137,7 +127,6 @@ export const useCommentStore = defineStore('comment', {
         }
         
         comment.status = 'approved';
-        this.saveCommentsToStorage(); // 保存到localStorage
         return comment;
       } catch (error) {
         this.error = error.message;
@@ -163,7 +152,6 @@ export const useCommentStore = defineStore('comment', {
         }
         
         this.comments.splice(index, 1);
-        this.saveCommentsToStorage(); // 保存到localStorage
         return true;
       } catch (error) {
         this.error = error.message;

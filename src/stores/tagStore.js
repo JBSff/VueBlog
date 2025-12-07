@@ -1,17 +1,13 @@
 import { defineStore } from 'pinia';
 import { mockTags } from './mockData';
-import StorageUtil from '../utils/storage';
-
-// 存储键名
-const TAGS_STORAGE_KEY = 'blog_tags';
 
 export const useTagStore = defineStore('tag', {
   state: () => ({
-    // 从localStorage获取标签数据，如果没有则使用mock数据
-    tags: StorageUtil.getData(TAGS_STORAGE_KEY, [...mockTags]),
+    tags: [...mockTags],
     loading: false,
     error: null
   }),
+  persist: true,
 
   getters: {
     // 获取所有标签
@@ -36,12 +32,7 @@ export const useTagStore = defineStore('tag', {
         
         // 更新状态并保存到localStorage
         this.tags = sortedTags;
-        this.saveTagsToStorage();
       }
-    },
-    // 保存标签数据到localStorage
-    saveTagsToStorage() {
-      StorageUtil.saveData(TAGS_STORAGE_KEY, this.tags);
     },
 
     // 获取标签列表
@@ -111,7 +102,6 @@ export const useTagStore = defineStore('tag', {
         };
         
         this.tags.push(newTag);
-        this.saveTagsToStorage(); // 保存到localStorage
         return newTag;
       } catch (error) {
         this.error = error.message;
@@ -142,7 +132,6 @@ export const useTagStore = defineStore('tag', {
         }
         
         this.tags[index].name = name;
-        this.saveTagsToStorage(); // 保存到localStorage
         return this.tags[index];
       } catch (error) {
         this.error = error.message;
@@ -168,7 +157,6 @@ export const useTagStore = defineStore('tag', {
         }
         
         this.tags.splice(index, 1);
-        this.saveTagsToStorage(); // 保存到localStorage
         return true;
       } catch (error) {
         this.error = error.message;

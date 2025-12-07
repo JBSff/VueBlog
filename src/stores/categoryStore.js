@@ -1,17 +1,13 @@
 import { defineStore } from 'pinia';
 import { mockCategories } from './mockData';
-import StorageUtil from '../utils/storage';
-
-// 存储键名
-const CATEGORIES_STORAGE_KEY = 'blog_categories';
 
 export const useCategoryStore = defineStore('category', {
   state: () => ({
-    // 从localStorage获取分类数据，如果没有则使用mock数据
-    categories: StorageUtil.getData(CATEGORIES_STORAGE_KEY, [...mockCategories]),
+    categories: [...mockCategories],
     loading: false,
     error: null
   }),
+  persist: true,
 
   getters: {
     // 获取所有分类
@@ -36,12 +32,7 @@ export const useCategoryStore = defineStore('category', {
         
         // 更新状态并保存到localStorage
         this.categories = sortedCategories;
-        this.saveCategoriesToStorage();
       }
-    },
-    // 保存分类数据到localStorage
-    saveCategoriesToStorage() {
-      StorageUtil.saveData(CATEGORIES_STORAGE_KEY, this.categories);
     },
 
     // 获取分类列表
@@ -112,7 +103,6 @@ export const useCategoryStore = defineStore('category', {
         };
         
         this.categories.push(newCategory);
-        this.saveCategoriesToStorage(); // 保存到localStorage
         return newCategory;
       } catch (error) {
         this.error = error.message;
@@ -144,7 +134,6 @@ export const useCategoryStore = defineStore('category', {
         
         this.categories[index].name = name;
         this.categories[index].description = description;
-        this.saveCategoriesToStorage(); // 保存到localStorage
         return this.categories[index];
       } catch (error) {
         this.error = error.message;
@@ -170,7 +159,6 @@ export const useCategoryStore = defineStore('category', {
         }
         
         this.categories.splice(index, 1);
-        this.saveCategoriesToStorage(); // 保存到localStorage
         return true;
       } catch (error) {
         this.error = error.message;

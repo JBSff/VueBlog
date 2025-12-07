@@ -4,10 +4,9 @@ import HomeView from '../views/frontend/HomeView.vue'
 import ArticleDetailView from '../views/frontend/ArticleDetailView.vue'
 import CategoryView from '../views/frontend/CategoryView.vue'
 import AdminView from '../views/backend/AdminView.vue'
+import UserProfileView from '../views/backend/UserProfileView.vue'
 import LoginView from '../views/frontend/LoginView.vue'
 import RegisterView from '../views/frontend/RegisterView.vue'
-import TestPersistenceView from '../views/frontend/TestPersistenceView.vue'
-import UserProfileView from '../views/frontend/UserProfileView.vue'
 
 const routes = [
   {
@@ -45,12 +44,6 @@ const routes = [
     name: 'register',
     component: RegisterView,
     meta: { title: '注册' }
-  },
-  {
-    path: '/test-persistence',
-    name: 'test-persistence',
-    component: TestPersistenceView,
-    meta: { title: '测试持久化' }
   },
   {
     path: '/user/profile',

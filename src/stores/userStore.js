@@ -1,51 +1,15 @@
 import { defineStore } from 'pinia';
 import { mockUsers } from './mockData';
-import StorageUtil from '../utils/storage';
-
-// 存储键名
-const USER_STORAGE_KEY = 'blog_user';
-const TOKEN_STORAGE_KEY = 'blog_token';
-const REGISTERED_USERS_KEY = 'registered_users';
-
-// 强制admin账号保持管理员角色
-const normalizeAdminUser = (user) => {
-  if (!user) {
-    return user;
-  }
-  const normalizedUser = { ...user };
-  if (normalizedUser.username === 'admin') {
-    normalizedUser.role = 'admin';
-  }
-  return normalizedUser;
-};
 
 export const useUserStore = defineStore('user', {
-  state: () => {
-    // 从localStorage获取用户信息
-    let currentUser = StorageUtil.getData(USER_STORAGE_KEY, null);
-    
-    // 保存原始用户信息（处理null情况）
-    const originalUser = currentUser ? { ...currentUser } : null;
-    
-    // 确保admin用户的role始终是admin
-    currentUser = normalizeAdminUser(currentUser);
-    
-    // 如果用户信息有变化（特别是admin角色被添加），则重新保存到localStorage
-    if (currentUser && JSON.stringify(currentUser) !== JSON.stringify(originalUser)) {
-      StorageUtil.saveData(USER_STORAGE_KEY, currentUser);
-    }
-    
-    return {
-      // 从localStorage获取用户信息，无数据时使用null
-      currentUser: currentUser,
-      // 从localStorage获取token，无数据时使用null
-      token: StorageUtil.getData(TOKEN_STORAGE_KEY, null),
-      // 获取注册的用户列表，如果没有则使用空数组
-      registeredUsers: StorageUtil.getData(REGISTERED_USERS_KEY, []),
-      loading: false,
-      error: null
-    };
-  },
+  state: () => ({
+    currentUser: null,
+    token: null,
+    registeredUsers: [],
+    loading: false,
+    error: null
+  }),
+  persist: true,
 
   getters: {
     isAuthenticated: (state) => !!state.token && !!state.currentUser,
@@ -53,25 +17,6 @@ export const useUserStore = defineStore('user', {
   },
 
   actions: {
-    // 保存用户信息到localStorage
-    saveUserToStorage() {
-      // 确保admin用户的role始终是admin
-      if (this.currentUser && this.currentUser.username === 'admin') {
-        this.currentUser.role = 'admin';
-      }
-      StorageUtil.saveData(USER_STORAGE_KEY, this.currentUser);
-    },
-    
-    // 保存token到localStorage
-    saveTokenToStorage() {
-      StorageUtil.saveData(TOKEN_STORAGE_KEY, this.token);
-    },
-    
-    // 保存注册用户列表到localStorage
-    saveRegisteredUsersToStorage() {
-      StorageUtil.saveData(REGISTERED_USERS_KEY, this.registeredUsers);
-    },
-    
     // 注册新用户
     async register(username, password, email) {
       this.loading = true;
@@ -100,9 +45,6 @@ export const useUserStore = defineStore('user', {
         
         // 添加到注册用户列表
         this.registeredUsers.push(newUser);
-        
-        // 保存到localStorage
-        this.saveRegisteredUsersToStorage();
         
         return true;
       } catch (error) {
@@ -137,16 +79,15 @@ export const useUserStore = defineStore('user', {
         // 生成模拟token
         const mockToken = `mock_token_${Date.now()}`;
         
-        // 创建用户对象的副本，并确保admin身份
-        const userToSave = normalizeAdminUser(user);
+        // 创建用户对象的副本
+        const userToSave = { ...user };
+        if (userToSave.username === 'admin') {
+          userToSave.role = 'admin';
+        }
         
         // 更新状态
         this.currentUser = userToSave;
         this.token = mockToken;
-        
-        // 保存到localStorage
-        this.saveUserToStorage();
-        this.saveTokenToStorage();
         
         return true;
       } catch (error) {
@@ -161,10 +102,6 @@ export const useUserStore = defineStore('user', {
     logout() {
       this.currentUser = null;
       this.token = null;
-      
-      // 清除localStorage
-      StorageUtil.removeData(USER_STORAGE_KEY);
-      StorageUtil.removeData(TOKEN_STORAGE_KEY);
     },
 
     // 验证token
@@ -197,9 +134,6 @@ export const useUserStore = defineStore('user', {
         
         // 更新用户密码
         this.registeredUsers[userIndex].password = newPassword;
-        
-        // 保存到localStorage
-        this.saveRegisteredUsersToStorage();
         
         return true;
       } catch (error) {

@@ -1,18 +1,14 @@
 import { defineStore } from 'pinia';
 import { mockArticles } from './mockData';
-import StorageUtil from '../utils/storage';
-
-// 存储键名
-const ARTICLES_STORAGE_KEY = 'blog_articles';
 
 export const useArticleStore = defineStore('article', {
   state: () => ({
-    // 从localStorage获取文章数据，如果没有则使用mock数据
-    articles: StorageUtil.getData(ARTICLES_STORAGE_KEY, [...mockArticles]),
+    articles: [...mockArticles],
     currentArticle: null,
     loading: false,
     error: null
   }),
+  persist: true,
 
   getters: {
     // 获取已发布的文章列表，按id从小到大排序
@@ -48,24 +44,7 @@ export const useArticleStore = defineStore('article', {
         
         // 更新状态并保存到localStorage
         this.articles = sortedArticles;
-        this.saveArticlesToStorage();
       }
-    },
-    // 保存文章数据到localStorage
-    saveArticlesToStorage() {
-      StorageUtil.saveData(ARTICLES_STORAGE_KEY, this.articles);
-    },
-    
-    // 从localStorage重新加载文章数据
-    reloadArticles() {
-      this.articles = StorageUtil.getData(ARTICLES_STORAGE_KEY, [...mockArticles]);
-      // 确保所有文章都有viewCount字段
-      this.articles = this.articles.map(article => ({
-        ...article,
-        viewCount: article.viewCount || 0
-      }));
-      // 保存更新后的数据回localStorage
-      this.saveArticlesToStorage();
     },
 
     // 获取文章列表
@@ -76,9 +55,6 @@ export const useArticleStore = defineStore('article', {
       try {
         // 模拟API延迟
         await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // 重新从localStorage加载数据，确保获取最新的文章
-        this.reloadArticles();
         
         return this.articles;
       } catch (error) {
@@ -97,9 +73,6 @@ export const useArticleStore = defineStore('article', {
       try {
         // 模拟API延迟
         await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // 重新从localStorage加载数据，确保获取最新的文章
-        this.reloadArticles();
         
         const article = this.articles.find(a => a.id === parseInt(id));
         
@@ -147,7 +120,6 @@ export const useArticleStore = defineStore('article', {
         };
         
         this.articles.unshift(newArticle);
-        this.saveArticlesToStorage(); // 保存到localStorage
         return newArticle;
       } catch (error) {
         this.error = error.message;
@@ -178,7 +150,6 @@ export const useArticleStore = defineStore('article', {
           updateTime: new Date().toISOString()
         };
         
-        this.saveArticlesToStorage(); // 保存到localStorage
         return this.articles[index];
       } catch (error) {
         this.error = error.message;
@@ -204,7 +175,6 @@ export const useArticleStore = defineStore('article', {
         }
         
         this.articles.splice(index, 1);
-        this.saveArticlesToStorage(); // 保存到localStorage
         return true;
       } catch (error) {
         this.error = error.message;
@@ -221,7 +191,6 @@ export const useArticleStore = defineStore('article', {
         
         if (article) {
           article.viewCount++;
-          this.saveArticlesToStorage(); // 保存到localStorage
           return true;
         }
         

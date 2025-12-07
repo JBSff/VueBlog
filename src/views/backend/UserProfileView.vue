@@ -155,7 +155,6 @@ import { getArticles, createArticle } from '../../api/article'
 import { getAllComments } from '../../api/comment'
 import { getCategories } from '../../api/category'
 import { getTags } from '../../api/tag'
-import StorageUtil from '../../utils/storage'
 
 export default {
   name: 'UserProfileView',
@@ -390,17 +389,6 @@ export default {
       // 初始加载用户评论
       fetchUserComments()
     })
-    
-    // 确保userStore.currentUser是最新的
-    if (!userStore.currentUser) {
-      const storedUser = StorageUtil.getData('blog_user', null)
-      // 确保admin用户的role始终是admin
-      if (storedUser && storedUser.username === 'admin') {
-        storedUser.role = 'admin'
-      }
-      userStore.currentUser = storedUser
-      userStore.token = StorageUtil.getData('blog_token', null)
-    }
     
     return {
       activeMenu,
