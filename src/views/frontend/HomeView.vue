@@ -12,6 +12,17 @@
         </router-link>
       </div>
     </div>
+
+    <div class="pagination-container" v-if="total > 0">
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :total="total"
+        :page-size="pageSize"
+        v-model:current-page="currentPage"
+        @current-change="handlePageChange"
+      />
+    </div>
   </div>
 </template>
 
@@ -27,13 +38,20 @@ export default {
   setup() {
     const articles = ref([])
     const categoryStore = useCategoryStore()
+    const currentPage = ref(1)
+    const pageSize = ref(5)
+    const total = ref(0)
 
-    onMounted(async () => {
+    const loadData = async () => {
       try {
         // 确保分类数据已加载
         await categoryStore.fetchCategories()
         
-        const response = await getArticles()
+        const response = await getArticles({
+          page: currentPage.value,
+          pageSize: pageSize.value
+        })
+        
         articles.value = response.data.map(article => {
           // 获取分类名称
           const category = categoryStore.categories.find(c => c.id === article.categoryId)
@@ -46,14 +64,28 @@ export default {
             excerpt: article.content.replace(/[#*`]/g, '').substring(0, 100) + '...'
           }
         })
+        total.value = response.total
       } catch (error) {
         console.error('获取文章列表失败:', error)
         ElMessage.error('加载失败，请稍后重试')
       }
+    }
+
+    const handlePageChange = (page) => {
+      currentPage.value = page
+      loadData()
+    }
+
+    onMounted(() => {
+      loadData()
     })
 
     return {
-      articles
+      articles,
+      currentPage,
+      pageSize,
+      total,
+      handlePageChange
     }
   }
 }
@@ -98,12 +130,18 @@ h1 {
 
 .article-meta {
   color: #666;
-  font-size: 14px;
+  font-size: 0.9em;
   margin-bottom: 10px;
 }
 
 .article-excerpt {
-  color: #555;
+  color: #444;
   line-height: 1.6;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
 }
 </style>

@@ -7,6 +7,10 @@
       <div class="sidebar">
         <div class="logo">管理后台</div>
         <el-menu :default-active="activeMenu" class="el-menu-vertical" @select="handleMenuSelect">
+          <el-menu-item index="overview">
+            <i class="el-icon-s-data"></i>
+            <span slot="title">今日概览</span>
+          </el-menu-item>
           <el-menu-item index="articles">
             <i class="el-icon-document"></i>
             <span slot="title">文章管理</span>
@@ -35,6 +39,58 @@
       <div class="main-content">
         <h1 class="page-title">{{ pageTitle }}</h1>
       
+        <!-- 今日概览 -->
+        <div v-if="activeMenu === 'overview'">
+          <el-row :gutter="20" class="overview-cards">
+            <el-col :span="6">
+              <el-card shadow="hover" class="stat-card">
+                <div class="stat-header">今日访问量</div>
+                <div class="stat-value">{{ overviewData.todayViews }}</div>
+                <div class="stat-footer">较昨日 +{{ Math.floor(Math.random() * 10) }}%</div>
+              </el-card>
+            </el-col>
+            <el-col :span="6">
+              <el-card shadow="hover" class="stat-card">
+                <div class="stat-header">新增文章数</div>
+                <div class="stat-value">{{ overviewData.newArticles }}</div>
+                <div class="stat-footer">总文章数: {{ articles.length }}</div>
+              </el-card>
+            </el-col>
+            <el-col :span="6">
+              <el-card shadow="hover" class="stat-card">
+                <div class="stat-header">新增注册数</div>
+                <div class="stat-value">{{ overviewData.newUsers }}</div>
+                <div class="stat-footer">总用户数: {{ totalUsers }}</div>
+              </el-card>
+            </el-col>
+            <el-col :span="6">
+              <el-card shadow="hover" class="stat-card">
+                <div class="stat-header">待审核评论</div>
+                <div class="stat-value">{{ overviewData.pendingComments }}</div>
+                <div class="stat-footer">总评论数: {{ comments.length }}</div>
+              </el-card>
+            </el-col>
+          </el-row>
+
+          <el-card shadow="never" class="content-card" style="margin-top: 20px;">
+            <template #header>
+              <div class="card-header">
+                <span>最近5条评论</span>
+              </div>
+            </template>
+            <el-table :data="overviewData.recentComments" style="width: 100%;" fit>
+              <el-table-column prop="content" label="评论内容" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="author" label="作者" width="120"></el-table-column>
+              <el-table-column prop="articleTitle" label="所属文章" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="createTime" label="评论时间" width="180">
+                <template #default="scope">
+                  {{ new Date(scope.row.createTime).toLocaleString() }}
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+        </div>
+
         <!-- 文章管理 -->
         <el-card v-if="activeMenu === 'articles'" shadow="never" class="content-card">
           <template #header>
@@ -227,8 +283,8 @@ export default {
   name: 'AdminView',
   setup() {
     const router = useRouter()
-    const activeMenu = ref('articles')
-    const pageTitle = ref('文章管理')
+    const activeMenu = ref('overview')
+    const pageTitle = ref('今日概览')
     const userStore = useUserStore()
     
     // 数据状态
@@ -236,6 +292,14 @@ export default {
     const categories = ref([])
     const tags = ref([])
     const comments = ref([])
+    const overviewData = ref({
+      todayViews: 0,
+      newArticles: 0,
+      newUsers: 0,
+      pendingComments: 0,
+      recentComments: []
+    })
+    const totalUsers = ref(0)
     const settings = ref({
       blogName: 'Vue学习博客',
       blogDescription: '欢迎访问我的博客'
@@ -340,6 +404,43 @@ export default {
             time: new Date(comment.createTime || comment.createdAt).toLocaleDateString('zh-CN')
           }
         })
+
+        // 计算今日概览数据
+        const today = new Date().toLocaleDateString()
+        
+        // 今日访问量 (模拟)
+        overviewData.value.todayViews = Math.floor(Math.random() * 500) + 100
+        
+        // 新增文章数
+        overviewData.value.newArticles = articles.value.filter(a => 
+          new Date(a.createTime).toLocaleDateString() === today
+        ).length
+        
+        // 新增注册数
+        const allUsers = [...userStore.registeredUsers]
+        overviewData.value.newUsers = allUsers.filter(u => {
+          if (typeof u.id === 'number' && u.id > 1600000000000) {
+             return new Date(u.id).toLocaleDateString() === today
+          }
+          return false
+        }).length
+        totalUsers.value = userStore.registeredUsers.length + 2 // +2 是 mockUsers 的数量
+        
+        // 待审核评论
+        overviewData.value.pendingComments = comments.value.filter(c => c.status !== 'approved').length
+        
+        // 最近5条评论
+        overviewData.value.recentComments = [...comments.value]
+          .sort((a, b) => new Date(b.createTime) - new Date(a.createTime))
+          .slice(0, 5)
+          .map(c => {
+            const article = articles.value.find(a => a.id === c.articleId)
+            return {
+              ...c,
+              articleTitle: article ? article.title : '未知文章'
+            }
+          })
+
       } catch (error) {
         console.error('加载数据失败:', error)
       }
@@ -349,6 +450,9 @@ export default {
     const handleMenuSelect = (index) => {
       activeMenu.value = index
       switch (index) {
+        case 'overview':
+          pageTitle.value = '今日概览'
+          break
         case 'articles':
           pageTitle.value = '文章管理'
           break
@@ -555,6 +659,8 @@ export default {
         categories,
         tags,
         comments,
+        overviewData,
+        totalUsers,
         settings,
         showArticleDialog,
         showCategoryDialog,
@@ -871,7 +977,38 @@ export default {
     width: 100% !important;
     box-sizing: border-box;
   }
+
+  /* 概览卡片样式 */
+  .overview-cards {
+    margin-bottom: 20px;
+  }
   
+  .stat-card {
+    text-align: center;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .stat-header {
+    font-size: 14px;
+    color: #909399;
+    margin-bottom: 10px;
+  }
+  
+  .stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #303133;
+    margin-bottom: 10px;
+  }
+  
+  .stat-footer {
+    font-size: 12px;
+    color: #67C23A;
+  }
+
   /* 确保按钮本身居中 */
   .settings-container .el-button {
     margin-left: auto;

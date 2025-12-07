@@ -1,83 +1,8 @@
-# 个人博客系统 (Personal Blog System)
+# 个人博客系统 v2.1 (Personal Blog System)
 
-这是一个基于 Vue 3 + Vite + Element Plus 开发的个人博客系统。项目使用 Pinia 进行状态管理，并利用 LocalStorage 进行数据持久化，同时内置了 Mock 数据，模拟了完整的前后端交互体验。
+## 📅 更新日志 (Changelog)
 
-## ✨ 功能特性
-
-- **用户系统**: 支持用户注册、登录及个人资料管理（模拟认证），包含忘记密码功能。
-- **文章管理**: 支持文章的发布、编辑、查看（Markdown 渲染）和删除。
-- **分类与标签**: 完整的分类和标签管理功能，支持筛选文章。
-- **评论功能**: 文章详情页支持发表和查看评论。
-- **数据持久化**: 使用 LocalStorage 本地存储数据，刷新页面数据不丢失。
-- **后台管理**: 提供管理员视图 (`AdminView`)，用于内容管理。
-- **SEO 与体验优化**: 自动更新页面标题，适配不同分辨率。
-- **数据模拟**: 内置 Mock 数据支持 (`mockData.js`)，方便开发调试。
-
-## 🛠️ 技术栈
-
-- **核心框架**: [Vue 3](https://vuejs.org/)
-- **构建工具**: [Vite](https://vitejs.dev/)
-- **状态管理**: [Pinia](https://pinia.vuejs.org/)
-- **持久化插件**: [Pinia Plugin Persistedstate](https://prazdevs.github.io/pinia-plugin-persistedstate/)
-- **路由管理**: [Vue Router](https://router.vuejs.org/)
-- **UI 组件库**: [Element Plus](https://element-plus.org/)
-- **HTTP 请求**: [Axios](https://axios-http.com/)
-- **Markdown 解析**: [Marked](https://marked.js.org/)
-
-## 📂 目录结构
-
-```
-src/
-├── api/            # API 接口封装
-├── assets/         # 静态资源
-├── router/         # 路由配置
-├── stores/         # Pinia 状态管理 (文章、分类、评论、标签、用户)
-├── views/          # 页面组件
-│   ├── backend/    # 后台管理相关页面
-│   │   ├── AdminView.vue         # 后台管理
-│   │   └── UserProfileView.vue   # 用户个人中心
-│   └── frontend/   # 前台展示相关页面
-│       ├── ArticleDetailView.vue # 文章详情
-│       ├── CategoryView.vue      # 分类页
-│       ├── HomeView.vue          # 首页
-│       ├── LoginView.vue         # 登录页
-│       └── RegisterView.vue      # 注册页
-├── App.vue         # 根组件
-├── main.js         # 入口文件
-└── style.css       # 全局样式
-```
-
-## 🚀 快速开始
-
-### 环境要求
-
-- Node.js >= 16.0.0
-
-### 1. 安装依赖
-
-```bash
-npm install
-```
-
-### 2. 启动开发服务器
-
-```bash
-npm run dev
-```
-
-### 3. 构建生产版本
-
-```bash
-npm run build
-```
-
-### 4. 预览生产构建
-
-```bash
-npm run preview
-```
-
-## 📝 说明
-
-本项目主要用于演示 Vue 3 生态系统的使用。数据默认存储在浏览器的 LocalStorage 中。如果需要重置数据，可以清除浏览器缓存或手动清空 LocalStorage。
-
+### v2.2
+- **后台升级**: 新增"今日概览"仪表盘，可视化展示今日访问量、新增文章/用户及待审核评论。
+- **首页优化**: 首页文章列表增加分页功能，默认每页展示 5 篇文章。
+- **体验优化**: 优化了后台管理界面的布局和样式，修复了一些已知问题。
