@@ -235,7 +235,8 @@ export default {
           return {
             ...article,
             category: category?.name || '', // 添加分类名称
-            date: date // 添加格式化后的日期
+            date: date, // 添加格式化后的日期
+            views: article.viewCount ?? article.views ?? 0 // 确保阅读量可用
           }
         })
         

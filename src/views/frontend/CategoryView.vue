@@ -90,6 +90,7 @@ export default {
         articles.value = response.data.map(article => ({
           ...article,
           date: new Date(article.createTime).toLocaleDateString('zh-CN'),
+          views: article.viewCount,
           summary: article.content.length > 150 ? article.content.substring(0, 150) + '...' : article.content
         }))
         loading.value = false

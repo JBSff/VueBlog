@@ -1,121 +1,161 @@
 <template>
   <div class="admin-container">
-    <div class="sidebar">
-      <div class="logo">博客管理后台</div>
-      <el-menu :default-active="activeMenu" class="el-menu-vertical" @select="handleMenuSelect">
-        <el-menu-item index="articles">
-          <i class="el-icon-document"></i>
-          <span slot="title">文章管理</span>
-        </el-menu-item>
-        <el-menu-item index="categories">
-          <i class="el-icon-folder"></i>
-          <span slot="title">分类管理</span>
-        </el-menu-item>
-        <el-menu-item index="tags">
-          <i class="el-icon-tickets"></i>
-          <span slot="title">标签管理</span>
-        </el-menu-item>
-        <el-menu-item index="comments">
-          <i class="el-icon-chat-line-square"></i>
-          <span slot="title">评论管理</span>
-        </el-menu-item>
-        <el-menu-item index="settings">
-          <i class="el-icon-setting"></i>
-          <span slot="title">系统设置</span>
-        </el-menu-item>
-      </el-menu>
-      <div class="logout" @click="logout">退出登录</div>
-    </div>
     
-    <div class="main-content">
-      <h1 class="page-title">{{ pageTitle }}</h1>
-      
-      <!-- 文章管理 -->
-      <div v-if="activeMenu === 'articles'">
-        <div class="operation-bar">
-          <el-button type="primary" @click="showArticleDialog = true">添加文章</el-button>
-          <el-input v-model="searchKeyword" placeholder="搜索文章" style="width: 200px; margin-left: 15px;"></el-input>
-        </div>
-        <el-table :data="articles" style="width: 100%;" fit>
-          <el-table-column prop="id" label="ID" width="60"></el-table-column>
-          <el-table-column prop="title" label="标题" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="category" label="分类" width="100"></el-table-column>
-          <el-table-column prop="date" label="发布日期" width="120"></el-table-column>
-          <el-table-column prop="views" label="阅读量" width="80"></el-table-column>
-          <el-table-column label="操作" width="140">
-            <template #default="scope">
-              <el-button size="small" @click="editArticle(scope.row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="deleteArticle(scope.row.id)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+    <!-- 主要内容区域 - 包含侧边栏和内容 -->
+    <div class="admin-main">
+      <!-- 侧边栏 - 保留原有功能 -->
+      <div class="sidebar">
+        <div class="logo">管理后台</div>
+        <el-menu :default-active="activeMenu" class="el-menu-vertical" @select="handleMenuSelect">
+          <el-menu-item index="articles">
+            <i class="el-icon-document"></i>
+            <span slot="title">文章管理</span>
+          </el-menu-item>
+          <el-menu-item index="categories">
+            <i class="el-icon-folder"></i>
+            <span slot="title">分类管理</span>
+          </el-menu-item>
+          <el-menu-item index="tags">
+            <i class="el-icon-tickets"></i>
+            <span slot="title">标签管理</span>
+          </el-menu-item>
+          <el-menu-item index="comments">
+            <i class="el-icon-chat-line-square"></i>
+            <span slot="title">评论管理</span>
+          </el-menu-item>
+          <el-menu-item index="settings">
+            <i class="el-icon-setting"></i>
+            <span slot="title">系统设置</span>
+          </el-menu-item>
+        </el-menu>
+        <div class="logout" @click="logout">退出登录</div>
       </div>
       
-      <!-- 分类管理 -->
-      <div v-if="activeMenu === 'categories'">
-        <div class="operation-bar">
-          <el-button type="primary" @click="showCategoryDialog = true">添加分类</el-button>
-        </div>
-        <el-table :data="categories" style="width: 100%;" fit>
-          <el-table-column prop="id" label="ID" width="60"></el-table-column>
-          <el-table-column prop="name" label="分类名称" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="articleCount" label="文章数量" width="100"></el-table-column>
-          <el-table-column label="操作" width="140">
-            <template #default="scope">
-              <el-button size="small" @click="editCategory(scope.row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="deleteCategory(scope.row.id)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
+      <!-- 主内容区域 -->
+      <div class="main-content">
+        <h1 class="page-title">{{ pageTitle }}</h1>
       
-      <!-- 标签管理 -->
-      <div v-if="activeMenu === 'tags'">
-        <div class="operation-bar">
-          <el-button type="primary" @click="showTagDialog = true">添加标签</el-button>
-        </div>
-        <el-table :data="tags" style="width: 100%;" fit>
-          <el-table-column prop="id" label="ID" width="60"></el-table-column>
-          <el-table-column prop="name" label="标签名称" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="articleCount" label="使用次数" width="100"></el-table-column>
-          <el-table-column label="操作" width="140">
-            <template #default="scope">
-              <el-button size="small" @click="editTag(scope.row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="deleteTag(scope.row.id)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      
-      <!-- 评论管理 -->
-      <div v-if="activeMenu === 'comments'">
-        <el-table :data="comments" style="width: 100%;" fit>
-          <el-table-column prop="id" label="ID" width="60"></el-table-column>
-          <el-table-column prop="articleTitle" label="文章标题" show-overflow-tooltip width="150"></el-table-column>
-          <el-table-column prop="author" label="评论者" width="100"></el-table-column>
-          <el-table-column prop="content" label="评论内容" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="time" label="评论时间" width="120"></el-table-column>
-          <el-table-column label="操作" width="120">
-            <template #default="scope">
-              <el-button size="small" type="danger" @click="deleteComment(scope.row.id)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      
-      <!-- 系统设置 -->
-      <div v-if="activeMenu === 'settings'" class="settings-container">
-        <el-form label-width="120px" class="full-width-form">
-          <el-form-item label="博客名称">
-            <el-input v-model="settings.blogName" class="full-width-input"></el-input>
-          </el-form-item>
-          <el-form-item label="博客描述">
-            <el-input v-model="settings.blogDescription" type="textarea" rows="3" class="full-width-input"></el-input>
-          </el-form-item>
-          <el-form-item class="center-button">
-            <el-button type="primary" @click="saveSettings">保存设置</el-button>
-          </el-form-item>
-        </el-form>
+        <!-- 文章管理 -->
+        <el-card v-if="activeMenu === 'articles'" shadow="never" class="content-card">
+          <template #header>
+            <div class="card-header">
+              <span>文章管理</span>
+              <el-button type="primary" @click="showArticleDialog = true">添加文章</el-button>
+            </div>
+          </template>
+          <div class="operation-bar">
+            <el-input
+              v-model.trim="searchKeyword"
+              clearable
+              placeholder="搜索标题/内容/分类/作者"
+              style="width: 240px;"
+            ></el-input>
+            <span style="margin-left: 10px; color: #999; font-size: 12px;">
+              (搜索: {{ searchKeyword || '无' }}, 共 {{ filteredArticles.length }} 条结果)
+            </span>
+          </div>
+
+          <el-table :data="filteredArticles" style="width: 100%;" fit>
+            <el-table-column prop="id" label="ID" width="60"></el-table-column>
+            <el-table-column prop="title" label="标题" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="category" label="分类" width="100"></el-table-column>
+            <el-table-column prop="date" label="发布日期" width="120"></el-table-column>
+            <el-table-column label="阅读量" width="80">
+              <template #default="scope">
+                {{ scope.row.views || 0 }}
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="140">
+              <template #default="scope">
+                <el-button size="small" @click="editArticle(scope.row)">编辑</el-button>
+                <el-button size="small" type="danger" @click="deleteArticle(scope.row.id)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+        
+        <!-- 分类管理 -->
+        <el-card v-if="activeMenu === 'categories'" shadow="never" class="content-card">
+          <template #header>
+            <div class="card-header">
+              <span>分类管理</span>
+              <el-button type="primary" @click="showCategoryDialog = true">添加分类</el-button>
+            </div>
+          </template>
+          <el-table :data="categories" style="width: 100%;" fit>
+            <el-table-column prop="id" label="ID" width="60"></el-table-column>
+            <el-table-column prop="name" label="分类名称" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="articleCount" label="文章数量" width="100"></el-table-column>
+            <el-table-column label="操作" width="140">
+              <template #default="scope">
+                <el-button size="small" @click="editCategory(scope.row)">编辑</el-button>
+                <el-button size="small" type="danger" @click="deleteCategory(scope.row.id)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+        
+        <!-- 标签管理 -->
+        <el-card v-if="activeMenu === 'tags'" shadow="never" class="content-card">
+          <template #header>
+            <div class="card-header">
+              <span>标签管理</span>
+              <el-button type="primary" @click="showTagDialog = true">添加标签</el-button>
+            </div>
+          </template>
+          <el-table :data="tags" style="width: 100%;" fit>
+            <el-table-column prop="id" label="ID" width="60"></el-table-column>
+            <el-table-column prop="name" label="标签名称" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="articleCount" label="使用次数" width="100"></el-table-column>
+            <el-table-column label="操作" width="140">
+              <template #default="scope">
+                <el-button size="small" @click="editTag(scope.row)">编辑</el-button>
+                <el-button size="small" type="danger" @click="deleteTag(scope.row.id)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+        
+        <!-- 评论管理 -->
+        <el-card v-if="activeMenu === 'comments'" shadow="never" class="content-card">
+          <template #header>
+            <div class="card-header">
+              <span>评论管理</span>
+            </div>
+          </template>
+          <el-table :data="comments" style="width: 100%;" fit>
+            <el-table-column prop="id" label="ID" width="60"></el-table-column>
+            <el-table-column prop="articleTitle" label="文章标题" show-overflow-tooltip width="150"></el-table-column>
+            <el-table-column prop="author" label="评论者" width="100"></el-table-column>
+            <el-table-column prop="content" label="评论内容" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="time" label="评论时间" width="120"></el-table-column>
+            <el-table-column label="操作" width="120">
+              <template #default="scope">
+                <el-button size="small" type="danger" @click="deleteComment(scope.row.id)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+        
+        <!-- 系统设置 -->
+        <el-card v-if="activeMenu === 'settings'" shadow="never" class="content-card">
+          <template #header>
+            <div class="card-header">
+              <span>系统设置</span>
+            </div>
+          </template>
+          <el-form label-width="120px" class="full-width-form">
+            <el-form-item label="博客名称">
+              <el-input v-model="settings.blogName" class="full-width-input"></el-input>
+            </el-form-item>
+            <el-form-item label="博客描述">
+              <el-input v-model="settings.blogDescription" type="textarea" rows="3" class="full-width-input"></el-input>
+            </el-form-item>
+            <el-form-item class="center-button">
+              <el-button type="primary" @click="saveSettings">保存设置</el-button>
+            </el-form-item>
+          </el-form>
+        </el-card>
       </div>
     </div>
     
@@ -174,7 +214,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getArticles, createArticle, updateArticle, deleteArticle as deleteArticleApi } from '../../api/article'
@@ -206,6 +246,28 @@ export default {
     const showCategoryDialog = ref(false)
     const showTagDialog = ref(false)
     const searchKeyword = ref('')
+    const filteredArticles = computed(() => {
+      const keyword = (searchKeyword.value || '').trim().toLowerCase()
+      console.log('Computed triggered. Keyword:', keyword, 'Articles count:', articles.value.length)
+      if (!keyword) {
+        return articles.value
+      }
+      const result = articles.value.filter(article => {
+        if (!article) return false
+        const title = (article.title || '').toLowerCase()
+        const content = (article.content || '').toLowerCase()
+        const category = (article.category || '').toLowerCase()
+        const author = (article.author || '').toLowerCase()
+        const match = title.includes(keyword) || 
+               content.includes(keyword) || 
+               category.includes(keyword) ||
+               author.includes(keyword)
+        return match
+      })
+      console.log('Filtered count:', result.length)
+      return result
+    })
+    
     const currentArticle = ref({
       id: '',
       title: '',
@@ -233,15 +295,18 @@ export default {
         const tagsResponse = await getTags()
         tags.value = tagsResponse.data || tagsResponse
         
-        // 获取文章列表
-        const articlesResponse = await getArticles()
-        articles.value = (articlesResponse.data || articlesResponse).map(article => {
+        // 获取文章列表 - 包含所有状态的文章，不分页
+        const articlesResponse = await getArticles({ includeAllStatuses: true, pageSize: 100 })
+        // 确保正确获取文章数据
+        const articlesData = articlesResponse.data || []
+        articles.value = articlesData.map(article => {
           // 根据categoryId查找分类名称
           const category = categories.value.find(cat => cat.id === article.categoryId)
           return {
             ...article,
             category: category?.name || '未分类',
-            date: new Date(article.createTime || article.createdAt).toLocaleDateString('zh-CN')
+            date: new Date(article.createTime || article.createdAt).toLocaleDateString('zh-CN'),
+            views: article.viewCount || article.views || 0 // 确保阅读量字段存在，默认值为0
           }
         })
         
@@ -265,29 +330,18 @@ export default {
         
         // 获取评论列表
         const commentsResponse = await getAllComments()
-        console.log('原始评论数据:', commentsResponse);
         comments.value = (commentsResponse.data || commentsResponse).map(comment => {
-          console.log('单条评论数据:', comment);
           // 根据articleId查找文章标题
-          const article = articles.value.find(article => article.id === comment.articleId)
+          const article = articles.value.find(a => a.id === comment.articleId)
           return {
             ...comment,
             author: comment.author || '匿名用户',
-            articleTitle: article?.title || comment.articleTitle || comment.article?.title || '未知文章',
-            time: new Date(comment.createTime || comment.createdAt).toLocaleDateString('zh-CN'),
-            // 保存原始数据用于调试
-            _raw: comment
-          };
+            articleTitle: article?.title || '未知文章',
+            time: new Date(comment.createTime || comment.createdAt).toLocaleDateString('zh-CN')
+          }
         })
-        ElMessage.success(`成功加载 ${comments.value.length} 条评论`);
       } catch (error) {
         console.error('加载数据失败:', error)
-        if (error.response?.status === 401 || error.message?.includes('未认证')) {
-          ElMessage.error('登录已过期，请重新登录')
-          router.push('/login')
-        } else {
-          ElMessage.error('加载数据失败，请稍后重试')
-        }
       }
     }
 
@@ -316,8 +370,7 @@ export default {
     // 文章相关操作
     const editArticle = (article) => {
       // 找到对应分类ID
-      const category = categories.value && categories.value.find ? 
-        categories.value.find(cat => cat.name === article.category) : null;
+      const category = categories.value.find(cat => cat.name === article.category)
       currentArticle.value = {
         id: article.id,
         title: article.title,
@@ -498,6 +551,7 @@ export default {
         activeMenu,
         pageTitle,
         articles,
+        filteredArticles,
         categories,
         tags,
         comments,
@@ -530,17 +584,26 @@ export default {
 <style scoped>
 .admin-container {
   display: flex;
-  min-height: 100vh;
+  flex-direction: column;
+  min-height: calc(100vh - 60px); /* 减去顶部导航栏高度 */
   background: #f0f2f5;
-  width: 950px; /* 修改为固定宽度950px */
-  margin: 0 auto; /* 居中显示 */
   overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* 主要内容区域布局 - 与用户中心保持一致 */
+.admin-main {
+  display: flex;
+  min-height: calc(100vh - 60px);
+  width: 950px;
+  margin: 0 auto;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
 .sidebar {
   width: 200px; /* 减小侧边栏宽度以适应950px总宽度 */
-  background: #001529;
+  background-color: #304156;
   color: white;
   display: flex;
   flex-direction: column;
@@ -548,21 +611,25 @@ export default {
 }
 
 .logo {
-  padding: 20px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 18px;
   font-weight: bold;
-  text-align: center;
-  border-bottom: 1px solid #1f2937;
+  background-color: #233446;
 }
 
 .el-menu-vertical {
-  background: transparent;
+  background-color: #304156;
   border-right: none;
 }
 
 .el-menu-vertical .el-menu-item {
-  color: rgba(255, 255, 255, 0.65);
+  color: white;
   width: 100%;
+  height: 50px;
+  line-height: 50px;
   box-sizing: border-box;
   white-space: nowrap;
   text-align: left;
@@ -580,6 +647,7 @@ export default {
 
 .el-menu-vertical .el-menu {
   width: 100%;
+  background-color: #304156;
 }
 
 .el-menu-vertical .el-menu-item:hover,
@@ -588,17 +656,23 @@ export default {
   color: white;
 }
 
+.el-menu-vertical .el-menu-item i {
+  color: white;
+}
+
 .logout {
   margin-top: auto;
-  padding: 15px;
-  text-align: center;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #233446;
   cursor: pointer;
-  border-top: 1px solid #1f2937;
-  transition: background 0.3s;
+  transition: background-color 0.3s;
 }
 
 .logout:hover {
-  background: #1f2937;
+  background-color: #1890ff;
 }
 
 .main-content {
@@ -619,6 +693,20 @@ export default {
   font-weight: 600;
 }
 
+/* 卡片样式 - 与用户中心保持一致 */
+.content-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  color: #303133;
+}
 
 .operation-bar {
   margin-bottom: 15px;

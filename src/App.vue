@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 顶部导航栏 -->
-    <header v-if="!isAdminRoute">
+    <header>
       <div class="header-content">
         <h1 class="site-title"><router-link to="/">Vue学习博客</router-link></h1>
         <nav>

@@ -59,6 +59,13 @@ export const useArticleStore = defineStore('article', {
     // 从localStorage重新加载文章数据
     reloadArticles() {
       this.articles = StorageUtil.getData(ARTICLES_STORAGE_KEY, [...mockArticles]);
+      // 确保所有文章都有viewCount字段
+      this.articles = this.articles.map(article => ({
+        ...article,
+        viewCount: article.viewCount || 0
+      }));
+      // 保存更新后的数据回localStorage
+      this.saveArticlesToStorage();
     },
 
     // 获取文章列表

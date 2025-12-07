@@ -84,6 +84,7 @@ export default {
           ...articleData,
           category: category?.name || '',
           date: new Date(articleData.createTime).toLocaleDateString('zh-CN'),
+          views: articleData.viewCount,
           tags: tagNames,
           content: marked(articleData.content.replace(/^# .+$/gm, '')) // 删除文章内容中的一级标题
         }
